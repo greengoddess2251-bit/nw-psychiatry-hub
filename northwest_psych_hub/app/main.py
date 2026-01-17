@@ -17,11 +17,15 @@ class WindowManager:
         self.main_window: MainWindow | None = None
 
     def show_login(self) -> None:
+        if self.main_window is not None:
+            self.main_window.close()
+            self.main_window = None
+        self.login_view.reset_form()
         self.login_view.show()
 
     def show_main_window(self, username: str) -> None:
         if self.main_window is None:
-            self.main_window = MainWindow(username)
+            self.main_window = MainWindow(username, self.show_login)
         self.main_window.show()
         self.login_view.hide()
 

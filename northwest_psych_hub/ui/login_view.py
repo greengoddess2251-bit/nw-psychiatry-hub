@@ -64,3 +64,10 @@ class LoginView(QWidget):
 
         self.error_label.setVisible(False)
         self.login_requested.emit(username)
+
+    def reset_form(self) -> None:
+        """Clear credentials and error messaging."""
+        self.username_input.clear()
+        self.password_input.clear()
+        self.error_label.clear()
+        self.error_label.setVisible(False)
