@@ -1,7 +1,9 @@
 """Application entry point for Northwest Psychiatry Hub."""
 
+import os
 import sys
 
+from dotenv import load_dotenv
 from PyQt6.QtWidgets import QApplication
 
 from northwest_psych_hub.ui.login_view import LoginView
@@ -32,7 +34,13 @@ class WindowManager:
 
 def main() -> None:
     """Run the Northwest Psychiatry Hub application."""
+    load_dotenv()
+    app_name = os.getenv("APP_NAME", "Northwest Psychiatry Hub")
+    log_level = os.getenv("LOG_LEVEL", "INFO")
+
     app = QApplication(sys.argv)
+    app.setApplicationName(app_name)
+    os.environ["LOG_LEVEL"] = log_level
     manager = WindowManager()
     manager.show_login()
     sys.exit(app.exec())
