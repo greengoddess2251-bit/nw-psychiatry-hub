@@ -1,5 +1,7 @@
 """Main application window for Northwest Psychiatry Hub."""
 
+from typing import Callable
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QHBoxLayout,
@@ -13,14 +15,19 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from northwest_psych_hub.services.config_service import ConfigService
+from northwest_psych_hub.ui.settings_view import SettingsView
+
 
 class MainWindow(QMainWindow):
     """Primary application window with navigation and content pages."""
 
-    def __init__(self, username: str) -> None:
+    def __init__(self, username: str, on_logout: Callable[[], None]) -> None:
         super().__init__()
         self.setWindowTitle("Northwest Psychiatry Hub")
         self._pages = {}
+        self._config_service = ConfigService()
+        self._on_logout = on_logout
         self._build_ui(username)
 
     def _build_ui(self, username: str) -> None:
@@ -54,20 +61,24 @@ class MainWindow(QMainWindow):
         self.navigation.setCurrentRow(0)
 
     def _add_page(self, name: str, username: str) -> None:
-        page = QWidget()
-        page_layout = QVBoxLayout()
-        page_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        if name == "Settings":
+            page = SettingsView(username, self._config_service)
+            page.logout_requested.connect(self._on_logout)
+        else:
+            page = QWidget()
+            page_layout = QVBoxLayout()
+            page_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        heading = QLabel(f"{name}")
-        heading.setStyleSheet("font-size: 18px; font-weight: 600;")
+            heading = QLabel(f"{name}")
+            heading.setStyleSheet("font-size: 18px; font-weight: 600;")
 
-        subtitle = QLabel(f"Welcome {username}. {name} content goes here.")
-        subtitle.setWordWrap(True)
-        subtitle.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+            subtitle = QLabel(f"Welcome {username}. {name} content goes here.")
+            subtitle.setWordWrap(True)
+            subtitle.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
-        page_layout.addWidget(heading)
-        page_layout.addWidget(subtitle)
-        page.setLayout(page_layout)
+            page_layout.addWidget(heading)
+            page_layout.addWidget(subtitle)
+            page.setLayout(page_layout)
 
         item = QListWidgetItem(name)
         self.navigation.addItem(item)
